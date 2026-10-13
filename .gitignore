@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
