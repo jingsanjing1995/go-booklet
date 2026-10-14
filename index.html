@@ -15,9 +15,29 @@
     })();
   </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
   <style>
     :root {
       --theme-color: #007d9c;
+    }
+
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #7a8a99 transparent;
+    }
+
+    html[data-theme="dark"] {
+      scrollbar-color: #4a5a68 transparent;
+    }
+
+    body {
+      overscroll-behavior-y: none;
+    }
+
+    .sidebar {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      overscroll-behavior: contain;
     }
 
     .sidebar-nav > ul > li > p {
@@ -185,14 +205,47 @@
       repo: 'jingsanjing1995/go-booklet',
       homepage: 'go小册/README.md',
       loadSidebar: true,
-      auto2top: true,
+      auto2top: false,
       maxLevel: 3,
       subMaxLevel: 2,
       search: {
         placeholder: '搜索',
         noData: '没有结果',
         depth: 3
-      }
+      },
+      plugins: [
+        function (hook) {
+          var lastPage = ''
+          hook.ready(function () {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+            if (typeof Lenis === 'undefined') return
+            window.__lenis = new Lenis({
+              autoRaf: true,
+              anchors: true,
+              duration: 1.15,
+              easing: function (t) {
+                return 1 - Math.pow(1 - t, 3)
+              },
+              smoothWheel: true,
+              wheelMultiplier: 0.86,
+              touchMultiplier: 1.1,
+              infinite: false
+            })
+          })
+          hook.doneEach(function () {
+            var page = (location.hash.split('?')[0] || '')
+            var lenis = window.__lenis
+            if (lenis) lenis.resize()
+            if (page === lastPage) return
+            lastPage = page
+            if (lenis) {
+              lenis.scrollTo(0, { duration: 0.7 })
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+          })
+        }
+      ]
     }
 
     ;(function () {
@@ -216,6 +269,7 @@
       })
     })()
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-go.min.js"></script>
