@@ -194,6 +194,54 @@
     html[data-theme="dark"] .github-corner svg {
       color: var(--bg);
     }
+
+    .go-tour-wrap {
+      margin: 1.4rem 0 2rem;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-elevated, #fff);
+    }
+
+    .go-tour-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border, #e5e5e5);
+      font-size: 14px;
+    }
+
+    .go-tour-bar a {
+      color: var(--theme-color, #007d9c);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .go-tour-wrap iframe,
+    .go-tour-fallback {
+      width: 100%;
+      height: min(72vh, 760px);
+      border: 0;
+      background: #fff;
+    }
+
+    .go-tour-fallback {
+      display: none;
+      box-sizing: border-box;
+      padding: 28px 22px;
+      background: var(--bg, #fafafa);
+      color: var(--text, #34495e);
+    }
+
+    .go-tour-wrap.is-blocked iframe {
+      display: none;
+    }
+
+    .go-tour-wrap.is-blocked .go-tour-fallback {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -244,6 +292,96 @@
               window.scrollTo({ top: 0, behavior: 'smooth' })
             }
           })
+        },
+        function (hook) {
+          var lessons = {
+            '01-认识Go': ['welcome/1', 'Welcome'],
+            '02-环境与工具链': ['welcome/1', 'Welcome'],
+            '03-程序结构与第一个程序': ['basics/1', 'Packages'],
+            '04-变量常量与基础类型': ['basics/8', 'Variables'],
+            '05-运算符与控制流': ['flowcontrol/1', 'For'],
+            '06-函数': ['basics/4', 'Functions'],
+            '07-数组切片与Map': ['moretypes/6', 'Arrays & Slices'],
+            '08-字符串字节与rune': ['moretypes/7', 'Slices'],
+            '01-指针': ['moretypes/1', 'Pointers'],
+            '02-结构体与方法': ['moretypes/2', 'Structs'],
+            '03-接口': ['methods/9', 'Interfaces'],
+            '04-错误处理': ['methods/19', 'Errors'],
+            '05-包模块与依赖': ['basics/1', 'Packages'],
+            '06-defer-panic-recover': ['flowcontrol/12', 'Defer'],
+            '07-标准库精选': ['welcome/1', 'Welcome'],
+            '01-Goroutine': ['concurrency/1', 'Goroutines'],
+            '02-Channel': ['concurrency/2', 'Channels'],
+            '03-Select与超时': ['concurrency/5', 'Select'],
+            '04-sync包': ['concurrency/9', 'sync.Mutex'],
+            '05-Context': ['concurrency/1', 'Goroutines'],
+            '06-并发模式与陷阱': ['concurrency/7', 'Exercise: Equivalent Binary Trees'],
+            '01-泛型': ['generics/1', 'Type parameters'],
+            '02-反射与unsafe': ['methods/15', 'Type assertions'],
+            '04-IO文件与编码': ['methods/21', 'Readers'],
+            '01-GMP调度器': ['concurrency/1', 'Goroutines']
+          }
+
+          function lessonFor(hash) {
+            var path = decodeURIComponent(hash || '')
+            var keys = Object.keys(lessons)
+            for (var i = 0; i < keys.length; i++) {
+              if (path.indexOf(keys[i]) !== -1) return lessons[keys[i]]
+            }
+            return ['welcome/1', 'A Tour of Go']
+          }
+
+          function insertTour() {
+            var headings = document.querySelectorAll('.markdown-section h2')
+            var h2 = null
+            for (var i = 0; i < headings.length; i++) {
+              if (headings[i].textContent.replace(/\s/g, '') === '练习') {
+                h2 = headings[i]
+                break
+              }
+            }
+            if (!h2 || h2.parentNode.querySelector('.go-tour-wrap')) return
+
+            var last = h2
+            var node = h2.nextElementSibling
+            while (node && node.tagName !== 'H2') {
+              var text = (node.textContent || '').trim()
+              if (text.indexOf('下一章') === 0 || text.indexOf('对应示例') === 0 || text.indexOf('入门篇结束') === 0) break
+              last = node
+              node = node.nextElementSibling
+            }
+
+            var info = lessonFor(location.hash)
+            var url = 'https://go.dev/tour/' + info[0]
+            var wrap = document.createElement('div')
+            wrap.className = 'go-tour-wrap'
+            wrap.innerHTML =
+              '<div class="go-tour-bar">' +
+                '<span>Go Tour · ' + info[1] + '</span>' +
+                '<a href="' + url + '" target="_blank" rel="noopener">新标签打开</a>' +
+              '</div>' +
+              '<iframe title="A Tour of Go" src="' + url + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+              '<div class="go-tour-fallback">' +
+                '<p>go.dev 禁止第三方站点内嵌 Tour。请用右上角「新标签打开」，在官方练习里跑代码，再回来做本章题目。</p>' +
+                '<p><a href="' + url + '" target="_blank" rel="noopener">' + url + '</a></p>' +
+              '</div>'
+            last.after(wrap)
+
+            var iframe = wrap.querySelector('iframe')
+            window.setTimeout(function () {
+              var blocked = false
+              try {
+                var href = iframe.contentWindow && iframe.contentWindow.location.href
+                blocked = !href || href === 'about:blank'
+              } catch (e) {
+                blocked = false
+              }
+              if (blocked) wrap.classList.add('is-blocked')
+              if (window.__lenis) window.__lenis.resize()
+            }, 900)
+          }
+
+          hook.doneEach(insertTour)
         }
       ]
     }
