@@ -205,42 +205,71 @@
 
     .go-tour-bar {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       padding: 10px 14px;
       border-bottom: 1px solid var(--border, #e5e5e5);
       font-size: 14px;
     }
 
-    .go-tour-bar a {
-      color: var(--theme-color, #007d9c);
-      font-weight: 600;
-      white-space: nowrap;
+    .go-tour-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .go-tour-wrap iframe,
-    .go-tour-fallback {
-      width: 100%;
-      height: min(72vh, 760px);
-      border: 0;
-      background: #fff;
-    }
-
-    .go-tour-fallback {
-      display: none;
-      box-sizing: border-box;
-      padding: 28px 22px;
-      background: var(--bg, #fafafa);
+    .go-tour-actions button,
+    .go-tour-actions a {
+      border: 1px solid var(--border, #d9d9d9);
+      background: var(--bg, #fff);
       color: var(--text, #34495e);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 1.4;
     }
 
-    .go-tour-wrap.is-blocked iframe {
-      display: none;
+    .go-tour-actions .primary {
+      background: var(--theme-color, #007d9c);
+      border-color: transparent;
+      color: #fff;
     }
 
-    .go-tour-wrap.is-blocked .go-tour-fallback {
-      display: block;
+    .go-tour-note {
+      margin: 0;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--muted, #666);
+      border-bottom: 1px solid var(--border, #e5e5e5);
+    }
+
+    .go-tour-editor {
+      width: 100%;
+      min-height: 280px;
+      box-sizing: border-box;
+      border: 0;
+      padding: 14px 16px;
+      resize: vertical;
+      font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: #11171d;
+      color: #e6edf3;
+    }
+
+    .go-tour-output {
+      margin: 0;
+      min-height: 88px;
+      max-height: 240px;
+      overflow: auto;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border, #e5e5e5);
+      background: #0c1014;
+      color: #b4e2a8;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -277,7 +306,10 @@
               smoothWheel: true,
               wheelMultiplier: 0.86,
               touchMultiplier: 1.1,
-              infinite: false
+              infinite: false,
+              prevent: function (node) {
+                return node.closest && node.closest('textarea, .go-tour-wrap')
+              }
             })
           })
           hook.doneEach(function () {
@@ -294,32 +326,33 @@
           })
         },
         function (hook) {
+          var hello = 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, 小册")\n}\n'
           var lessons = {
-            '01-认识Go': ['welcome/1', 'Welcome'],
-            '02-环境与工具链': ['welcome/1', 'Welcome'],
-            '03-程序结构与第一个程序': ['basics/1', 'Packages'],
-            '04-变量常量与基础类型': ['basics/8', 'Variables'],
-            '05-运算符与控制流': ['flowcontrol/1', 'For'],
-            '06-函数': ['basics/4', 'Functions'],
-            '07-数组切片与Map': ['moretypes/6', 'Arrays & Slices'],
-            '08-字符串字节与rune': ['moretypes/7', 'Slices'],
-            '01-指针': ['moretypes/1', 'Pointers'],
-            '02-结构体与方法': ['moretypes/2', 'Structs'],
-            '03-接口': ['methods/9', 'Interfaces'],
-            '04-错误处理': ['methods/19', 'Errors'],
-            '05-包模块与依赖': ['basics/1', 'Packages'],
-            '06-defer-panic-recover': ['flowcontrol/12', 'Defer'],
-            '07-标准库精选': ['welcome/1', 'Welcome'],
-            '01-Goroutine': ['concurrency/1', 'Goroutines'],
-            '02-Channel': ['concurrency/2', 'Channels'],
-            '03-Select与超时': ['concurrency/5', 'Select'],
-            '04-sync包': ['concurrency/9', 'sync.Mutex'],
-            '05-Context': ['concurrency/1', 'Goroutines'],
-            '06-并发模式与陷阱': ['concurrency/7', 'Exercise: Equivalent Binary Trees'],
-            '01-泛型': ['generics/1', 'Type parameters'],
-            '02-反射与unsafe': ['methods/15', 'Type assertions'],
-            '04-IO文件与编码': ['methods/21', 'Readers'],
-            '01-GMP调度器': ['concurrency/1', 'Goroutines']
+            '01-认识Go': ['welcome/1', 'Welcome', hello],
+            '02-环境与工具链': ['welcome/1', 'Welcome', hello],
+            '03-程序结构与第一个程序': ['basics/1', 'Packages', 'package main\n\nimport (\n\t"fmt"\n\t"math/rand"\n)\n\nfunc main() {\n\tfmt.Println("My favorite number is", rand.Intn(10))\n}\n'],
+            '04-变量常量与基础类型': ['basics/8', 'Variables', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tvar i int = 42\n\tvar f = float64(i)\n\tconst Pi = 3.14\n\tfmt.Println(i, f, Pi)\n}\n'],
+            '05-运算符与控制流': ['flowcontrol/1', 'For', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tsum := 0\n\tfor i := 0; i < 10; i++ {\n\t\tsum += i\n\t}\n\tfmt.Println(sum)\n}\n'],
+            '06-函数': ['basics/4', 'Functions', 'package main\n\nimport "fmt"\n\nfunc add(x, y int) int {\n\treturn x + y\n}\n\nfunc main() {\n\tfmt.Println(add(42, 13))\n}\n'],
+            '07-数组切片与Map': ['moretypes/7', 'Slices', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tprimes := [6]int{2, 3, 5, 7, 11, 13}\n\tvar s []int = primes[1:4]\n\tfmt.Println(s, len(s), cap(s))\n}\n'],
+            '08-字符串字节与rune': ['moretypes/16', 'Range', 'package main\n\nimport "fmt"\n\nfunc main() {\n\ts := "Go小册"\n\tfor i, r := range s {\n\t\tfmt.Printf("%d %c\\n", i, r)\n\t}\n}\n'],
+            '01-指针': ['moretypes/1', 'Pointers', 'package main\n\nimport "fmt"\n\nfunc main() {\n\ti, j := 42, 2701\n\tp := &i\n\tfmt.Println(*p)\n\t*p = 21\n\tfmt.Println(i, j)\n}\n'],
+            '02-结构体与方法': ['moretypes/2', 'Structs', 'package main\n\nimport "fmt"\n\ntype Vertex struct {\n\tX int\n\tY int\n}\n\nfunc (v Vertex) Abs() int {\n\tif v.X < 0 {\n\t\treturn -v.X\n\t}\n\treturn v.X\n}\n\nfunc main() {\n\tv := Vertex{1, 2}\n\tfmt.Println(v, v.Abs())\n}\n'],
+            '03-接口': ['methods/9', 'Interfaces', 'package main\n\nimport (\n\t"fmt"\n\t"math"\n)\n\ntype Abser interface {\n\tAbs() float64\n}\n\ntype Vertex struct{ X, Y float64 }\n\nfunc (v Vertex) Abs() float64 {\n\treturn math.Sqrt(v.X*v.X + v.Y*v.Y)\n}\n\nfunc main() {\n\tvar a Abser = Vertex{3, 4}\n\tfmt.Println(a.Abs())\n}\n'],
+            '04-错误处理': ['methods/19', 'Errors', 'package main\n\nimport (\n\t"fmt"\n\t"time"\n)\n\ntype MyError struct {\n\tWhen time.Time\n\tWhat string\n}\n\nfunc (e *MyError) Error() string {\n\treturn fmt.Sprintf("%v: %s", e.When, e.What)\n}\n\nfunc run() error {\n\treturn &MyError{time.Now(), "it didn\'t work"}\n}\n\nfunc main() {\n\tif err := run(); err != nil {\n\t\tfmt.Println(err)\n\t}\n}\n'],
+            '05-包模块与依赖': ['basics/1', 'Packages', 'package main\n\nimport (\n\t"fmt"\n\t"math/rand"\n)\n\nfunc main() {\n\tfmt.Println("My favorite number is", rand.Intn(10))\n}\n'],
+            '06-defer-panic-recover': ['flowcontrol/12', 'Defer', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tdefer fmt.Println("world")\n\tfmt.Println("hello")\n}\n'],
+            '07-标准库精选': ['welcome/1', 'Welcome', hello],
+            '01-Goroutine': ['concurrency/1', 'Goroutines', 'package main\n\nimport (\n\t"fmt"\n\t"time"\n)\n\nfunc say(s string) {\n\tfor i := 0; i < 3; i++ {\n\t\ttime.Sleep(80 * time.Millisecond)\n\t\tfmt.Println(s)\n\t}\n}\n\nfunc main() {\n\tgo say("world")\n\tsay("hello")\n}\n'],
+            '02-Channel': ['concurrency/2', 'Channels', 'package main\n\nimport "fmt"\n\nfunc sum(s []int, c chan int) {\n\tsum := 0\n\tfor _, v := range s {\n\t\tsum += v\n\t}\n\tc <- sum\n}\n\nfunc main() {\n\ts := []int{7, 2, 8, -9, 4, 0}\n\tc := make(chan int)\n\tgo sum(s[:len(s)/2], c)\n\tgo sum(s[len(s)/2:], c)\n\tx, y := <-c, <-c\n\tfmt.Println(x, y, x+y)\n}\n'],
+            '03-Select与超时': ['concurrency/5', 'Select', 'package main\n\nimport (\n\t"fmt"\n\t"time"\n)\n\nfunc main() {\n\tc1 := make(chan string, 1)\n\tgo func() {\n\t\ttime.Sleep(80 * time.Millisecond)\n\t\tc1 <- "result"\n\t}()\n\tselect {\n\tcase msg := <-c1:\n\t\tfmt.Println(msg)\n\tcase <-time.After(200 * time.Millisecond):\n\t\tfmt.Println("timeout")\n\t}\n}\n'],
+            '04-sync包': ['concurrency/9', 'sync.Mutex', 'package main\n\nimport (\n\t"fmt"\n\t"sync"\n)\n\ntype SafeCounter struct {\n\tmu sync.Mutex\n\tv  map[string]int\n}\n\nfunc (c *SafeCounter) Inc(key string) {\n\tc.mu.Lock()\n\tc.v[key]++\n\tc.mu.Unlock()\n}\n\nfunc main() {\n\tc := SafeCounter{v: make(map[string]int)}\n\tvar wg sync.WaitGroup\n\tfor i := 0; i < 8; i++ {\n\t\twg.Add(1)\n\t\tgo func() {\n\t\t\tdefer wg.Done()\n\t\t\tc.Inc("k")\n\t\t}()\n\t}\n\twg.Wait()\n\tfmt.Println(c.v["k"])\n}\n'],
+            '05-Context': ['concurrency/1', 'Goroutines', 'package main\n\nimport (\n\t"context"\n\t"fmt"\n\t"time"\n)\n\nfunc main() {\n\tctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)\n\tdefer cancel()\n\tselect {\n\tcase <-time.After(200 * time.Millisecond):\n\t\tfmt.Println("done")\n\tcase <-ctx.Done():\n\t\tfmt.Println(ctx.Err())\n\t}\n}\n'],
+            '06-并发模式与陷阱': ['concurrency/2', 'Channels', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tch := make(chan int, 2)\n\tch <- 1\n\tch <- 2\n\tfmt.Println(<-ch)\n\tfmt.Println(<-ch)\n}\n'],
+            '01-泛型': ['generics/1', 'Type parameters', 'package main\n\nimport "fmt"\n\nfunc Index[T comparable](s []T, x T) int {\n\tfor i, v := range s {\n\t\tif v == x {\n\t\t\treturn i\n\t\t}\n\t}\n\treturn -1\n}\n\nfunc main() {\n\tfmt.Println(Index([]int{1, 2, 3}, 2))\n\tfmt.Println(Index([]string{"a", "b"}, "z"))\n}\n'],
+            '02-反射与unsafe': ['methods/15', 'Type assertions', 'package main\n\nimport "fmt"\n\nfunc main() {\n\tvar i interface{} = "hello"\n\ts, ok := i.(string)\n\tfmt.Println(s, ok)\n\tn, ok := i.(int)\n\tfmt.Println(n, ok)\n}\n'],
+            '04-IO文件与编码': ['methods/21', 'Readers', 'package main\n\nimport (\n\t"fmt"\n\t"io"\n\t"strings"\n)\n\nfunc main() {\n\tr := strings.NewReader("Hello, Reader!")\n\tb := make([]byte, 8)\n\tfor {\n\t\tn, err := r.Read(b)\n\t\tfmt.Printf("n=%d err=%v %q\\n", n, err, b[:n])\n\t\tif err == io.EOF {\n\t\t\tbreak\n\t\t}\n\t}\n}\n'],
+            '01-GMP调度器': ['concurrency/1', 'Goroutines', hello]
           }
 
           function lessonFor(hash) {
@@ -328,7 +361,7 @@
             for (var i = 0; i < keys.length; i++) {
               if (path.indexOf(keys[i]) !== -1) return lessons[keys[i]]
             }
-            return ['welcome/1', 'A Tour of Go']
+            return ['welcome/1', 'A Tour of Go', hello]
           }
 
           function insertTour() {
@@ -352,33 +385,75 @@
             }
 
             var info = lessonFor(location.hash)
-            var url = 'https://go.dev/tour/' + info[0]
+            var tourURL = 'https://go.dev/tour/' + info[0]
             var wrap = document.createElement('div')
             wrap.className = 'go-tour-wrap'
             wrap.innerHTML =
               '<div class="go-tour-bar">' +
-                '<span>Go Tour · ' + info[1] + '</span>' +
-                '<a href="' + url + '" target="_blank" rel="noopener">新标签打开</a>' +
+                '<strong>练习台 · ' + info[1] + '</strong>' +
+                '<div class="go-tour-actions">' +
+                  '<button type="button" class="primary" data-act="run">运行</button>' +
+                  '<button type="button" data-act="reset">重置</button>' +
+                  '<a href="' + tourURL + '" target="_blank" rel="noopener">打开 Tour</a>' +
+                  '<button type="button" data-act="play">打开 Playground</button>' +
+                '</div>' +
               '</div>' +
-              '<iframe title="A Tour of Go" src="' + url + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
-              '<div class="go-tour-fallback">' +
-                '<p>go.dev 禁止第三方站点内嵌 Tour。请用右上角「新标签打开」，在官方练习里跑代码，再回来做本章题目。</p>' +
-                '<p><a href="' + url + '" target="_blank" rel="noopener">' + url + '</a></p>' +
-              '</div>'
+              '<p class="go-tour-note">go.dev 禁止被嵌入，所以练习在本页运行（走官方 Playground 编译接口）。完整图文课请点「打开 Tour」。</p>' +
+              '<textarea class="go-tour-editor" spellcheck="false"></textarea>' +
+              '<pre class="go-tour-output">点击「运行」查看输出</pre>'
+
+            var editor = wrap.querySelector('textarea')
+            var output = wrap.querySelector('.go-tour-output')
+            editor.value = info[2]
             last.after(wrap)
 
-            var iframe = wrap.querySelector('iframe')
-            window.setTimeout(function () {
-              var blocked = false
-              try {
-                var href = iframe.contentWindow && iframe.contentWindow.location.href
-                blocked = !href || href === 'about:blank'
-              } catch (e) {
-                blocked = false
-              }
-              if (blocked) wrap.classList.add('is-blocked')
-              if (window.__lenis) window.__lenis.resize()
-            }, 900)
+            function compile() {
+              output.textContent = '运行中…'
+              var body = new URLSearchParams()
+              body.set('version', '2')
+              body.set('withVet', 'true')
+              body.set('body', editor.value)
+              return fetch('https://play.golang.org/compile?backend=', {
+                method: 'POST',
+                body: body
+              }).then(function (res) { return res.json() })
+            }
+
+            wrap.querySelector('[data-act="run"]').addEventListener('click', function () {
+              compile().then(function (data) {
+                if (data.Errors) {
+                  output.textContent = data.Errors
+                  return
+                }
+                var events = data.Events || []
+                output.textContent = events.length
+                  ? events.map(function (e) { return e.Message }).join('')
+                  : '(没有输出)'
+              }).catch(function (err) {
+                output.textContent = '运行失败：' + err.message + '\n请改用「打开 Tour」或「打开 Playground」。'
+              })
+            })
+
+            wrap.querySelector('[data-act="reset"]').addEventListener('click', function () {
+              editor.value = info[2]
+              output.textContent = '已重置，点击「运行」查看输出'
+            })
+
+            wrap.querySelector('[data-act="play"]').addEventListener('click', function () {
+              output.textContent = '正在打开 Playground…'
+              fetch('https://play.golang.org/share', {
+                method: 'POST',
+                body: editor.value
+              }).then(function (res) { return res.text() }).then(function (key) {
+                window.open('https://go.dev/play/p/' + key.trim(), '_blank', 'noopener')
+                output.textContent = '已在新标签打开 Playground'
+              }).catch(function () {
+                window.open(tourURL, '_blank', 'noopener')
+                output.textContent = '分享失败，已改为打开 Tour'
+              })
+            })
+
+            if (window.__lenis) window.__lenis.resize()
           }
 
           hook.doneEach(insertTour)
