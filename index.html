@@ -197,6 +197,45 @@
 
     .go-tour-wrap {
       margin: 1.4rem 0 2rem;
+      display: grid;
+      gap: 12px;
+    }
+
+    .go-tour-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 10px;
+      background: var(--bg-elevated, #fff);
+      color: var(--text, #34495e);
+      text-decoration: none;
+    }
+
+    .go-tour-card:hover {
+      border-color: var(--theme-color, #007d9c);
+    }
+
+    .go-tour-card small {
+      display: block;
+      color: var(--muted, #666);
+      margin-bottom: 4px;
+    }
+
+    .go-tour-card strong {
+      font-size: 16px;
+    }
+
+    .go-tour-card em {
+      font-style: normal;
+      color: var(--theme-color, #007d9c);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .go-tour-lab {
       border: 1px solid var(--border, #e5e5e5);
       border-radius: 10px;
       overflow: hidden;
@@ -237,14 +276,6 @@
       background: var(--theme-color, #007d9c);
       border-color: transparent;
       color: #fff;
-    }
-
-    .go-tour-note {
-      margin: 0;
-      padding: 8px 14px;
-      font-size: 13px;
-      color: var(--muted, #666);
-      border-bottom: 1px solid var(--border, #e5e5e5);
     }
 
     .go-tour-editor {
@@ -389,18 +420,22 @@
             var wrap = document.createElement('div')
             wrap.className = 'go-tour-wrap'
             wrap.innerHTML =
-              '<div class="go-tour-bar">' +
-                '<strong>练习台 · ' + info[1] + '</strong>' +
-                '<div class="go-tour-actions">' +
-                  '<button type="button" class="primary" data-act="run">运行</button>' +
-                  '<button type="button" data-act="reset">重置</button>' +
-                  '<a href="' + tourURL + '" target="_blank" rel="noopener">打开 Tour</a>' +
-                  '<button type="button" data-act="play">打开 Playground</button>' +
+              '<a class="go-tour-card" href="' + tourURL + '" target="_blank" rel="noopener">' +
+                '<span><small>A Tour of Go</small><strong>' + info[1] + '</strong></span>' +
+                '<em>新标签打开官方课程 →</em>' +
+              '</a>' +
+              '<div class="go-tour-lab">' +
+                '<div class="go-tour-bar">' +
+                  '<strong>本页沙箱</strong>' +
+                  '<div class="go-tour-actions">' +
+                    '<button type="button" class="primary" data-act="run">运行</button>' +
+                    '<button type="button" data-act="reset">重置</button>' +
+                    '<button type="button" data-act="play">打开 Playground</button>' +
+                  '</div>' +
                 '</div>' +
-              '</div>' +
-              '<p class="go-tour-note">go.dev 禁止被嵌入，所以练习在本页运行（走官方 Playground 编译接口）。完整图文课请点「打开 Tour」。</p>' +
-              '<textarea class="go-tour-editor" spellcheck="false"></textarea>' +
-              '<pre class="go-tour-output">点击「运行」查看输出</pre>'
+                '<textarea class="go-tour-editor" spellcheck="false"></textarea>' +
+                '<pre class="go-tour-output">点击「运行」查看输出</pre>' +
+              '</div>'
 
             var editor = wrap.querySelector('textarea')
             var output = wrap.querySelector('.go-tour-output')
